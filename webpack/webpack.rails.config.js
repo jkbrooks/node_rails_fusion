@@ -10,8 +10,8 @@ var railsBundleMapRelativePath = "../../../public/assets/" + railsBundleMapFile;
 module.exports = {
   context: __dirname,
   entry: [
-    // In case we don't require jQuery from CDN or asset pipeline
-    "./scripts/rails_only",
+    // to expose something Rails specific, uncomment the next line
+    //"./scripts/rails_only",
     "./assets/javascripts/example"
   ],
   output: {
@@ -26,37 +26,24 @@ module.exports = {
     root: [ path.join(__dirname, "scripts"), path.join(__dirname, "assets/javascripts")],
     extensions: ["", ".js", ".jsx"]
   },
-  resolveLoader: {
-    // todo -- see if this is necessary
-    root: [path.join(__dirname, "scripts"), path.join(__dirname, "assets/javascripts")],
-    extensions: ["", ".webpack.js", ".web.js", ".js", ".jsx"]
-  },
   module: {
     loaders: [
-      { test: /\.jsx$/,
-        loaders: ['es6', 'jsx?harmony'] }
+      { test: /\.jsx$/, loaders: ['es6', 'jsx?harmony'] },
+      // Next 2 lines expose jQuery and $ to any JavaScript files loaded after rails-bundle.js
+      //   in the Rails Asset Pipeline. Thus, load this one prior.
+      { test: require.resolve("jquery"), loader: "expose?jQuery" },
+      { test: require.resolve("jquery"), loader: "expose?$" }
     ]
-  },
+  }
 };
 
 var devBuild = (typeof process.env["BUILDPACK_URL"]) === "undefined";
 if (devBuild) {
   console.log("Webpack dev build for rails");
-  module.exports.devtool = "source-map";
+  module.exports.devtool = "eval-source-map";
   module.exports.module.loaders.push(
     { test: require.resolve("react"), loader: "expose?React" }
   );
-  module.exports.plugins = [
-    function () {
-      this.plugin("emit", function (compilation, callback) {
-        // CRITICAL: This must be a relative path from the railsJsAssetsDir (where gen file goes)
-        var asset = compilation.assets[railsBundleMapFile];
-        compilation.assets[railsBundleMapRelativePath] = asset;
-        delete compilation.assets[railsBundleMapFile];
-        callback();
-      });
-    }
-  ];
 } else {
   console.log("Webpack production build for rails");
 }

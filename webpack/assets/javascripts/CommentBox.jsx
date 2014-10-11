@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 
-module $ from 'jquery';
+var $ = require('jquery');
 module React from 'react/addons';
 
 // Next line is necessary for exposing React to browser for
@@ -32,17 +32,15 @@ var Comment = React.createClass({
 });
 
 var CommentBox = React.createClass({
+  logError: function(xhr, status, err) {
+    console.error(`Error loading comments from server!\nURL is ${this.props.url}\nstatus is ${status}\nerr is ${err.toString()}`);
+  },
   loadCommentsFromServer: function() {
     $.ajax({
       url: this.props.url,
-      dataType: 'json',
-      success: function(data) {
+      dataType: 'json'}).then(data => {
         this.setState({data: data});
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
-      }.bind(this)
-    });
+      }, this.logError);
   },
   emptyFormData:  { author: "", text: "" },
   handleCommentSubmit: function() {
@@ -55,17 +53,14 @@ var CommentBox = React.createClass({
       url: this.props.url,
       dataType: 'json',
       type: 'POST',
-      data: { comment: comment},
-      success: function(data) {
+      data: { comment: comment}}).then(data => {
         var comments = this.state.data;
         var newComments = React.addons.update(comments, { $push: [comment] } );
         this.setState({ajaxSending: false, data: newComments, formData: this.emptyFormData });
-      }.bind(this),
-      error: function(xhr, status, err) {
-        console.error(this.props.url, status, err.toString());
+      }, (xhr, status, err) => {
+        this.logError(xhr, status, err);
         this.setState({ajaxSending: false});
-      }.bind(this)
-    });
+      });
   },
   getInitialState: function() {
     return {
@@ -98,7 +93,7 @@ var CommentBox = React.createClass({
 var CommentList = React.createClass({
   render: function() {
     var reversedData = this.props.data.slice(0).reverse();
-    var commentNodes = reversedData.map(function(comment, index) {
+    var commentNodes = reversedData.map((comment, index) => {
       return (
         // `key` is a React-specific concept and is not mandatory for the
         // purpose of this tutorial. if you're curious, see more here:
@@ -119,15 +114,16 @@ var CommentList = React.createClass({
 var CommentForm = React.createClass({
   getInitialState: function() {
     return {
-      formMode: 0,
+      formMode: 0
     };
-  },  handleSubmit: function(e) {
+  },
+  handleSubmit: function(e) {
     e.preventDefault();
     this.props.onCommentSubmit();
     return;
   },
   handleSelect: function(selectedKey) {
-   this.setState({ formMode: selectedKey });
+    this.setState({ formMode: selectedKey });
   },
   handleChange: function() {
     // This could also be done using ReactLink:
@@ -154,7 +150,7 @@ var CommentForm = React.createClass({
           <Input type="textarea" label="Text" placeholder="Say something..." labelClassName="col-sm-2" wrapperClassName="col-sm-10" ref="text"  value={this.props.formData.text} onChange={this.handleChange} disabled={this.props.ajaxSending} />
           <div className="form-group"><div className="col-sm-offset-2 col-sm-10"><input type="submit" className="btn btn-primary" value="Post" disabled={this.props.ajaxSending} /></div></div>
         </form></div>
-      );
+    );
   },
   formStacked: function() {
     return (
@@ -164,7 +160,7 @@ var CommentForm = React.createClass({
           <Input type="textarea" label="Text" placeholder="Say something..." ref="text" value={this.props.formData.text} onChange={this.handleChange} disabled={this.props.ajaxSending} />
           <input type="submit" className="btn btn-primary" value="Post" disabled={this.props.ajaxSending} />
         </form></div>
-      );
+    );
   },
   formInline: function() {
     return (
@@ -182,21 +178,21 @@ var CommentForm = React.createClass({
                 <input type="submit" className="btn btn-primary" value="Post" disabled={this.props.ajaxSending} />
               </Col>
             </Row>
-        </Input>
+          </Input>
         </form></div>
-      );
+    );
   },
   render: function() {
     var inputForm;
     switch (this.state.formMode) {
-       case 0:
-         inputForm = this.formHorizontal();
-         break;
-       case 1:
-         inputForm = this.formStacked();
-         break;
-       case 2:
-         inputForm = this.formInline();
+      case 0:
+        inputForm = this.formHorizontal();
+        break;
+      case 1:
+        inputForm = this.formStacked();
+        break;
+      case 2:
+        inputForm = this.formInline();
     }
     return (
       <div>
