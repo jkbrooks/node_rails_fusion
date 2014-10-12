@@ -13,8 +13,7 @@ namespace :assets do
 
   desc 'Compile assets with webpack'
   task :webpack do
-    #Fails on heroku: #sh 'cd webpack && $(npm bin)/webpack --config webpack.rails.config.js'
-    sh './node_modules/.bin/webpack --config webpack.rails.config.js && cd webpack'
+    sh 'cd webpack && $(npm bin)/webpack --config webpack.rails.config.js'
   end
 
   task :clobber do
