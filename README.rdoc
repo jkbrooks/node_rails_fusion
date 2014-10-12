@@ -1,0 +1,7 @@
+== README
+
+https://hackhands.com/fast-rich-client-rails-development-webpack-es6-transpiler/
+
+https://medium.com/brigade-engineering/setting-up-webpack-with-rails-c62aea149679
+
+https://github.com/flarnie/webpack_rails_demo (doesn't requrie Rails 4.2
