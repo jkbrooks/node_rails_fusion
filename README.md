@@ -5,3 +5,4 @@
 -https://medium.com/brigade-engineering/setting-up-webpack-with-rails-c62aea149679
 -
 -http://react-webpack-rails-tutorial.herokuapp.com/
+-http://forum.railsonmaui.com/t/fast-rich-client-rails-development-with-webpack-and-the-es6-transpiler/82
